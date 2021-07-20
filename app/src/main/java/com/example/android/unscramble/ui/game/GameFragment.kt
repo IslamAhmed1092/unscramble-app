@@ -20,9 +20,6 @@ class GameFragment : Fragment() {
 
     private val gameViewModel: GameViewModel by viewModels()
 
-
-
-
     // Binding object instance with access to the views in the game_fragment.xml layout
     private lateinit var binding: GameFragmentBinding
 
@@ -49,10 +46,12 @@ class GameFragment : Fragment() {
         binding.submit.setOnClickListener { onSubmitWord() }
         binding.skip.setOnClickListener { onSkipWord() }
         // Update the UI
-        updateNextWordOnScreen()
         binding.score.text = getString(R.string.score, 0)
         binding.wordCount.text = getString(
                 R.string.word_count, 0, MAX_NO_OF_WORDS)
+        gameViewModel.currentScrambledWord.observe(viewLifecycleOwner, {
+            newWord -> binding.textViewUnscrambledWord.text = newWord
+        })
     }
 
     override fun onDetach() {
@@ -69,9 +68,7 @@ class GameFragment : Fragment() {
 
         if (gameViewModel.isUserWordCorrect(playerWord)) {
             setErrorTextField(false)
-            if (gameViewModel.nextWord()) {
-                updateNextWordOnScreen()
-            } else {
+            if (!gameViewModel.nextWord()) {
                 showFinalScoreDialog()
             }
         } else {
@@ -85,7 +82,6 @@ class GameFragment : Fragment() {
     private fun onSkipWord() {
         if (gameViewModel.nextWord()) {
             setErrorTextField(false)
-            updateNextWordOnScreen()
         } else {
             showFinalScoreDialog()
         }
@@ -107,7 +103,6 @@ class GameFragment : Fragment() {
     private fun restartGame() {
         gameViewModel.reinitializeData()
         setErrorTextField(false)
-        updateNextWordOnScreen()
     }
 
     /*
@@ -130,12 +125,6 @@ class GameFragment : Fragment() {
         }
     }
 
-    /*
-     * Displays the next scrambled word on screen.
-     */
-    private fun updateNextWordOnScreen() {
-        binding.textViewUnscrambledWord.text = gameViewModel.currentScrambledWord
-    }
 
     /*
     * Creates and shows an AlertDialog with the final score.
