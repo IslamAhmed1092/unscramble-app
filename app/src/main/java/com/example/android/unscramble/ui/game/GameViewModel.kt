@@ -1,6 +1,5 @@
 package com.example.android.unscramble.ui.game
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -20,13 +19,7 @@ class GameViewModel: ViewModel() {
     val currentScrambledWord: LiveData<String> get() = _currentScrambledWord
 
     init {
-        Log.d("GameFragment", "GameViewModel created!")
         getNextWord()
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        Log.d("GameFragment", "GameViewModel destroyed!")
     }
 
     /*
