@@ -33,9 +33,6 @@ class GameFragment : Fragment() {
     ): View {
         // Inflate the layout XML file and return a binding object instance
         binding = GameFragmentBinding.inflate(inflater, container, false)
-        Log.d("GameFragment", "GameFragment created/re-created!")
-        Log.d("GameFragment", "Word: ${gameViewModel.currentScrambledWord} " +
-                "Score: ${gameViewModel.score} WordCount: ${gameViewModel.currentWordCount}")
         return binding.root
     }
 
@@ -46,9 +43,12 @@ class GameFragment : Fragment() {
         binding.submit.setOnClickListener { onSubmitWord() }
         binding.skip.setOnClickListener { onSkipWord() }
         // Update the UI
-        binding.score.text = getString(R.string.score, 0)
-        binding.wordCount.text = getString(
-                R.string.word_count, 0, MAX_NO_OF_WORDS)
+        gameViewModel.score.observe(viewLifecycleOwner, {
+            newScore -> binding.score.text = getString(R.string.score, newScore)
+        })
+        gameViewModel.currentWordCount.observe(viewLifecycleOwner, {
+            newCount -> binding.wordCount.text = getString(R.string.word_count, newCount, MAX_NO_OF_WORDS)
+        })
         gameViewModel.currentScrambledWord.observe(viewLifecycleOwner, {
             newWord -> binding.textViewUnscrambledWord.text = newWord
         })
@@ -132,7 +132,7 @@ class GameFragment : Fragment() {
     private fun showFinalScoreDialog() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(getString(R.string.congratulations))
-            .setMessage(getString(R.string.you_scored, gameViewModel.score))
+            .setMessage(getString(R.string.you_scored, gameViewModel.score.value))
             .setCancelable(false)
             .setNegativeButton(getString(R.string.exit)) { _, _ ->
                 exitGame()
